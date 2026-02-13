@@ -54,16 +54,62 @@
  */
 export function createThaliDescription(thali) {
   // Your code here
+  if (!thali || typeof thali !== "object" || Array.isArray(thali)) {
+    return "";
+  }
+  const { name, items, price, isVeg } = thali;
+  if (typeof name !== "string" || !Array.isArray(items) || typeof price !== "number" || typeof isVeg !== "boolean") {
+    return "";
+  }
+  const vegStatus = isVeg ? "Veg" : "Non-Veg";
+  return `${name.toUpperCase()} (${vegStatus}) - Items: ${items.join(", ")} - Rs.${price.toFixed(2)}`;
 }
 
 export function getThaliStats(thalis) {
   // Your code here
+  if (!Array.isArray(thalis) || thalis.length === 0) {
+    return null;
+  }
+  const totalThalis = thalis.length;
+  const vegCount = thalis.filter(t => t.isVeg).length;
+  const nonVegCount = totalThalis - vegCount;
+  const avgPrice = (thalis.reduce((sum, t) => sum + t.price, 0) / totalThalis).toFixed(2);
+  const prices = thalis.map(t => t.price);
+  const cheapest = Math.min(...prices);
+  const costliest = Math.max(...prices);
+  const names = thalis.map(t => t.name);
+  return {
+    totalThalis,
+    vegCount,
+    nonVegCount,
+    avgPrice,
+    cheapest,
+    costliest,
+    names
+  };
 }
 
 export function searchThaliMenu(thalis, query) {
   // Your code here
+  if (!Array.isArray(thalis) || typeof query !== "string") {
+    return [];
+  }
+  const lowerQuery = query.toLowerCase();
+  return thalis.filter(t => 
+    t.name.toLowerCase().includes(lowerQuery) ||
+    t.items.some(item => item.toLowerCase().includes(lowerQuery))
+  );
+
 }
 
 export function generateThaliReceipt(customerName, thalis) {
   // Your code here
+  if (typeof customerName !== "string" || !Array.isArray(thalis) || thalis.length === 0) {
+    return "";
+  }
+  const upperName = customerName.toUpperCase();
+  const lineItems = thalis.map(t => `- ${t.name} x Rs.${t.price}`).join("\n");
+  const total = thalis.reduce((sum, t) => sum + t.price, 0);
+  const count = thalis.length;
+  return `THALI RECEIPT\n---\nCustomer: ${upperName}\n${lineItems}\n---\nTotal: Rs.${total}\nItems: ${count}`;
 }
